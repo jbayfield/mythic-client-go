@@ -2,7 +2,7 @@ package mythic
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 )
@@ -12,23 +12,23 @@ const HostAuthURL string = "https://auth.mythic-beasts.com"
 
 // Client -
 type Client struct {
-	HostURL    string
-	HostAuthURL    string
-	HTTPClient *http.Client
-	Token      string
-	Auth       AuthStruct
+	HostURL     string
+	HostAuthURL string
+	HTTPClient  *http.Client
+	Token       string
+	Auth        AuthStruct
 }
 
 // AuthStruct -
 type AuthStruct struct {
-	KeyID string `json:"keyid"`
+	KeyID  string `json:"keyid"`
 	Secret string `json:"secret"`
 }
 
 // AuthResponse -
 type AuthResponse struct {
-	AccessToken  string `json:"access_token"`
-	TokenType    string `json:"token_type"`
+	AccessToken string `json:"access_token"`
+	TokenType   string `json:"token_type"`
 }
 
 // NewClient -
@@ -36,7 +36,7 @@ func NewClient(host, keyid, secret *string) (*Client, error) {
 	c := Client{
 		HTTPClient: &http.Client{Timeout: 10 * time.Second},
 		// Default Hashicups URL
-		HostURL: HostURL,
+		HostURL:     HostURL,
 		HostAuthURL: HostAuthURL,
 	}
 
@@ -50,7 +50,7 @@ func NewClient(host, keyid, secret *string) (*Client, error) {
 	}
 
 	c.Auth = AuthStruct{
-		KeyID: *keyid,
+		KeyID:  *keyid,
 		Secret: *secret,
 	}
 
@@ -73,7 +73,7 @@ func (c *Client) doRequest(req *http.Request, authToken *string) ([]byte, error)
 
 	// If we don't have a token yet don't try to include one
 	if token != "" {
-		req.Header.Set("Authorization", "Bearer " + token)
+		req.Header.Set("Authorization", "Bearer "+token)
 	}
 
 	res, err := c.HTTPClient.Do(req)
@@ -82,7 +82,7 @@ func (c *Client) doRequest(req *http.Request, authToken *string) ([]byte, error)
 	}
 	defer res.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -93,4 +93,3 @@ func (c *Client) doRequest(req *http.Request, authToken *string) ([]byte, error)
 
 	return body, err
 }
-

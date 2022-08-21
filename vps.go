@@ -47,3 +47,18 @@ func (c *Client) GetVPS(identifier string, authToken *string) (*VPS, error) {
 
 	return &vps, nil
 }
+
+// DestroyVPS - Destroys specific VPS
+func (c *Client) DestroyVPS(identifier string, authToken *string) error {
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/vps/servers/%s", c.HostURL, identifier), nil)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.doRequest(req, authToken)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -10,8 +10,8 @@ import (
 )
 
 func basicAuth(username, password string) string {
-  auth := username + ":" + password
-  return base64.StdEncoding.EncodeToString([]byte(auth))
+	auth := username + ":" + password
+	return base64.StdEncoding.EncodeToString([]byte(auth))
 }
 
 // SignIn - Get a new token for user
@@ -21,7 +21,7 @@ func (c *Client) SignIn() (*AuthResponse, error) {
 	}
 
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/login", c.HostAuthURL), strings.NewReader("grant_type=client_credentials"))
-	req.Header.Add("Authorization","Basic " + basicAuth(c.Auth.KeyID, c.Auth.Secret))
+	req.Header.Add("Authorization", "Basic "+basicAuth(c.Auth.KeyID, c.Auth.Secret))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	if err != nil {
 		return nil, err
@@ -48,7 +48,7 @@ func (c *Client) GetUserTokenSignIn(auth AuthStruct) (*AuthResponse, error) {
 	}
 
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/login", c.HostAuthURL), strings.NewReader("grant_type=client_credentials"))
-	req.Header.Add("Authorization","Basic " + basicAuth(auth.KeyID, auth.Secret))
+	req.Header.Add("Authorization", "Basic "+basicAuth(auth.KeyID, auth.Secret))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	if err != nil {
@@ -57,7 +57,7 @@ func (c *Client) GetUserTokenSignIn(auth AuthStruct) (*AuthResponse, error) {
 
 	body, err := c.doRequest(req, nil)
 	if err != nil {
-		return nil, errors.New("Unable to login")
+		return nil, errors.New("unable to login")
 	}
 
 	ar := AuthResponse{}
