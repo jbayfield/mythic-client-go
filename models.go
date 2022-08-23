@@ -1,5 +1,16 @@
 package mythic
 
+// VPSProduct -
+type VPSProduct struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Specs       struct {
+		Cores     int `json:"cores"`
+		RAM       int `json:"ram"`
+		Bandwidth int `json:"bandwidth"`
+	} `json:"specs"`
+}
+
 // VPS -
 type VPS struct {
 	// Basic properties - always present

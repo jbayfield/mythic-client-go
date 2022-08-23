@@ -7,6 +7,27 @@ import (
 	"strings"
 )
 
+// GetVPSProducts - Gets list of available products
+func (c *Client) GetVPSProducts(authToken *string) (map[string]VPSProduct, error) {
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/vps/products", c.HostURL), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := c.doRequest(req, authToken)
+	if err != nil {
+		return nil, err
+	}
+
+	productlist := map[string]VPSProduct{}
+	err = json.Unmarshal(body, &productlist)
+	if err != nil {
+		return nil, err
+	}
+
+	return productlist, nil
+}
+
 // GetVPSMap - Returns map of VPS on account
 func (c *Client) GetVPSMap(authToken *string) (map[string]VPS, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/vps/servers", c.HostURL), nil)
