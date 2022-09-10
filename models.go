@@ -65,3 +65,17 @@ type VPS struct {
 		Display  int    `json:"display"`
 	} `json:"vnc,omitempty"`
 }
+
+// VPS -
+type VPSCreateSpec struct {
+	// TODO: implement full list
+	Identifier string `json:"-"`
+	Name       string `json:"name,omitempty"`
+	Product    string `json:"product"`
+	HostServer string `json:"host_server,omitempty"`
+	Hostname   string `json:"hostname,omitempty"`
+	DiskType   string `json:"disk_type,omitempty"`
+	DiskSize   int    `json:"disk_size"`
+	IPv4       bool   `json:"ipv4,omitempty"`
+	Zone       string `json:"zone,omitempty"`
+}

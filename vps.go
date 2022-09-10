@@ -1,10 +1,14 @@
 package mythic
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
+
+	"github.com/tidwall/gjson"
 )
 
 // GetVPSProducts - Gets list of available products
@@ -65,6 +69,70 @@ func (c *Client) GetVPS(identifier string, authToken *string) (*VPS, error) {
 	err = json.Unmarshal(body, &vps)
 	if err != nil {
 		return nil, err
+	}
+
+	return &vps, nil
+}
+
+// CreateVPS - Creates a VPS based on the provided object
+func (c *Client) CreateVPS(vpsspec VPSCreateSpec, authToken *string) (*VPS, error) {
+	// POST /vps/servers
+	// Required params: product, disk_size
+	// Everything else is optional (including the identifier)
+
+	// Determine the request URL based on whether we have specified an identifier
+	requesturl := fmt.Sprintf("%s/vps/servers", c.HostURL)
+	if vpsspec.Identifier != "" {
+		requesturl = fmt.Sprintf("%s/vps/servers/%s", c.HostURL, vpsspec.Identifier)
+	}
+
+	// Marshal request JSON
+	requestjson, err := json.Marshal(vpsspec)
+	if err != nil {
+		return nil, err
+	}
+
+	// Make request
+	req, err := http.NewRequest("POST", requesturl, bytes.NewReader(requestjson))
+	req.Header.Add("Content-Type", "application/json")
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println("[DEBUG] Provisioning new VPS...")
+	body, err := c.doRequest(req, authToken)
+	if err != nil {
+		return nil, err
+	}
+
+	machineprovisioned := false
+	attempts := 0
+	vps := VPS{}
+
+	for !machineprovisioned {
+		req, err := http.NewRequest("GET", fmt.Sprintf("%s/queue/vps/%s", c.HostURL, gjson.Get(string(body), "task").String()), nil)
+		if err != nil {
+			return nil, err
+		}
+		body, err := c.doRequest(req, authToken)
+		if err != nil {
+			return nil, err
+		}
+		fmt.Println("[DEBUG] Provisioning status - body: ", string(body))
+
+		if !gjson.Get(string(body), "disk_bus").Exists() {
+			attempts++
+			if attempts > 10 {
+				return nil, fmt.Errorf("timeout exceeded while waiting for provisioning to complete")
+			}
+			time.Sleep(30 * time.Second)
+		} else {
+			machineprovisioned = true
+			err = json.Unmarshal(body, &vps)
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
 
 	return &vps, nil
