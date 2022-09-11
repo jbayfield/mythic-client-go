@@ -138,6 +138,28 @@ func (c *Client) CreateVPS(vpsspec VPSCreateSpec, authToken *string) (*VPS, erro
 	return &vps, nil
 }
 
+// UpdateVPS - Updates settings for specific VPS
+func (c *Client) UpdateVPS(updateSpec VPSUpdateSpec, authToken *string) error {
+	// Marshal request JSON
+	requestjson, err := json.Marshal(updateSpec)
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest("PATCH", fmt.Sprintf("%s/vps/servers/%s", c.HostURL, updateSpec.Identifier), bytes.NewReader(requestjson))
+	req.Header.Add("Content-Type", "application/json")
+	if err != nil {
+		return err
+	}
+
+	_, err = c.doRequest(req, authToken)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // DestroyVPS - Destroys specific VPS
 func (c *Client) DestroyVPS(identifier string, authToken *string) error {
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/vps/servers/%s", c.HostURL, identifier), nil)

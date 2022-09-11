@@ -79,3 +79,12 @@ type VPSCreateSpec struct {
 	IPv4       bool   `json:"ipv4,omitempty"`
 	Zone       string `json:"zone,omitempty"`
 }
+
+// VPS -
+type VPSUpdateSpec struct {
+	// TODO: implement full list
+	Identifier string `json:"-"`
+	Name       string `json:"name"`
+	Product    string `json:"product"`
+	DiskSize   int    `json:"disk_size"`
+}
